@@ -1,0 +1,64 @@
+import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api.js';
+
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      api
+        .get('/auth/me')
+        .then((res) => setUser(res.data))
+        .catch(() => {
+          localStorage.removeItem('token');
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const login = async (email, password) => {
+    const { data } = await api.post('/auth/login', { email, password });
+    localStorage.setItem('token', data.token);
+    setUser({ _id: data._id, name: data.name, email: data.email });
+    return data;
+  };
+
+  // register no longer saves token — just sends OTP
+  const register = async (name, email, password) => {
+    const { data } = await api.post('/auth/register', { name, email, password });
+    return data;
+  };
+
+  // call this after user submits OTP
+  const verifyOTP = async (email, otp) => {
+    const { data } = await api.post('/auth/verify-otp', { email, otp });
+    localStorage.setItem('token', data.token);
+    setUser({ _id: data._id, name: data.name, email: data.email });
+    return data;
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, login, register, verifyOTP, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
