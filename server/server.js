@@ -18,7 +18,10 @@ app.set('trust proxy', 1);
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',
+      process.env.CLIENT_URL || 'https://quick-link-sigma.vercel.app'
+    ],
     credentials: true,
   })
 );
