@@ -1,8 +1,8 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const sendEmail = async ({ to, subject, html }) => {
+  const resend = new Resend(process.env.RESEND_API_KEY); // ✅ moved inside
+
   try {
     await resend.emails.send({
       from: 'QuickLink <onboarding@resend.dev>',
