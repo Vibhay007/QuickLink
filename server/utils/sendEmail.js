@@ -1,16 +1,23 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const sendEmail = async ({ to, subject, html }) => {
-  const resend = new Resend(process.env.RESEND_API_KEY); // ✅ moved inside
-
   try {
-    await resend.emails.send({
-      from: 'QuickLink <onboarding@resend.dev>',
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: `"QuickLink" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
     });
-    console.log('✅ Email sent to:', to);
+
+    console.log('✅ Email sent:', info.messageId);
   } catch (error) {
     console.error('❌ Email sending failed:', error.message);
     throw error;
