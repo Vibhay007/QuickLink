@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { signInWithGoogle } from '../services/firebase.js';
+import api from '../services/api.js';
 
 function Register() {
-  const { user, register, verifyOTP, loading: authLoading } = useAuth();
+  const { user, register, loading: authLoading, setUser } = useAuth();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState('register'); // 'register' | 'verify'
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -20,7 +20,7 @@ function Register() {
     setSubmitting(true);
     try {
       await register(name, email, password);
-      setStep('verify'); // move to OTP screen
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -28,15 +28,17 @@ function Register() {
     }
   };
 
-  const handleVerify = async (e) => {
-    e.preventDefault();
+  const handleGoogleAuth = async () => {
     setError('');
     setSubmitting(true);
     try {
-      await verifyOTP(email, otp);
+      const idToken = await signInWithGoogle();
+      const { data } = await api.post('/auth/google', { idToken });
+      localStorage.setItem('token', data.token);
+      setUser({ _id: data._id, name: data.name, email: data.email });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Verification failed');
+      setError('Google sign-in failed');
     } finally {
       setSubmitting(false);
     }
@@ -48,101 +50,64 @@ function Register() {
   return (
     <section className="auth-page">
       <div className="auth-card card">
-
-        {step === 'register' ? (
-          <>
-            <h1 className="page-title">Sign up</h1>
-            <p className="page-subtitle">Create your QuickLink account</p>
-            <form onSubmit={handleRegister}>
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  autoComplete="name"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
-                />
-              </div>
-              {error && <p className="error">{error}</p>}
-              <button
-                type="submit"
-                className="btn btn-primary auth-submit"
-                disabled={submitting}
-              >
-                {submitting ? 'Sending OTP...' : 'Sign up'}
-              </button>
-            </form>
-            <p className="auth-footer">
-              Already have an account? <Link to="/login">Log in</Link>
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 className="page-title">Verify email</h1>
-            <p className="page-subtitle">
-              We sent a 6-digit code to <strong>{email}</strong>
-            </p>
-            <form onSubmit={handleVerify}>
-              <div className="form-group">
-                <label htmlFor="otp">Verification code</label>
-                <input
-                  id="otp"
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  required
-                  maxLength={6}
-                  placeholder="Enter 6-digit code"
-                  autoComplete="one-time-code"
-                  style={{ letterSpacing: '0.3em', fontSize: '1.2rem' }}
-                />
-              </div>
-              {error && <p className="error">{error}</p>}
-              <button
-                type="submit"
-                className="btn btn-primary auth-submit"
-                disabled={submitting || otp.length < 6}
-              >
-                {submitting ? 'Verifying...' : 'Verify email'}
-              </button>
-            </form>
-            <p className="auth-footer">
-              Wrong email?{' '}
-              <span
-                style={{ color: 'var(--primary)', cursor: 'pointer' }}
-                onClick={() => { setStep('register'); setError(''); setOtp(''); }}
-              >
-                Go back
-              </span>
-            </p>
-          </>
-        )}
-
+        <h1 className="page-title">Sign up</h1>
+        <p className="page-subtitle">Create your QuickLink account</p>
+        <form onSubmit={handleRegister}>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              autoComplete="name"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              autoComplete="new-password"
+            />
+          </div>
+          {error && <p className="error">{error}</p>}
+          <button
+            type="submit"
+            className="btn btn-primary auth-submit"
+            disabled={submitting}
+          >
+            {submitting ? 'Signing up...' : 'Sign up'}
+          </button>
+        </form>
+        <div className="divider">or</div>
+        <button
+          className="btn btn-google"
+          onClick={handleGoogleAuth}
+          disabled={submitting}
+        >
+          <img src="https://www.google.com/favicon.ico" width="18" height="18" />
+          Continue with Google
+        </button>
+        <p className="auth-footer">
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
       </div>
       <style>{`
         .auth-page {
@@ -159,6 +124,39 @@ function Register() {
           color: var(--text-muted);
           font-size: 0.95rem;
         }
+        .btn-google {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          background: white;
+          border: 1px solid var(--border);
+          color: var(--text);
+          padding: 0.6rem 1rem;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 0.95rem;
+          margin-top: 0.5rem;
+        }
+        .btn-google:hover { background: var(--bg-secondary); }
+        .divider {
+          text-align: center;
+          color: var(--text-muted);
+          font-size: 0.85rem;
+          margin: 1rem 0 0.5rem;
+          position: relative;
+        }
+        .divider::before, .divider::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          width: 42%;
+          height: 1px;
+          background: var(--border);
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
       `}</style>
     </section>
   );

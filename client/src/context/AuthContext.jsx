@@ -29,15 +29,8 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  // register no longer saves token — just sends OTP
   const register = async (name, email, password) => {
     const { data } = await api.post('/auth/register', { name, email, password });
-    return data;
-  };
-
-  // call this after user submits OTP
-  const verifyOTP = async (email, otp) => {
-    const { data } = await api.post('/auth/verify-otp', { email, otp });
     localStorage.setItem('token', data.token);
     setUser({ _id: data._id, name: data.name, email: data.email });
     return data;
@@ -49,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, verifyOTP, logout }}>
+  <AuthContext.Provider value={{ user, setUser, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
