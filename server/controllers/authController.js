@@ -65,7 +65,7 @@ export const googleAuth = async (req, res, next) => {
     const { idToken } = req.body;
 
 const decoded = await adminAuth.verifyIdToken(idToken);
-    const { name, email } = decoded;
+    const   { name, email } = decoded;
 
     let user = await User.findOne({ email });
 
