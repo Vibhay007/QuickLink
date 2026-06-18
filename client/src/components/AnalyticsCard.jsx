@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { urlAPI } from '../services/api.js';
 import { 
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, 
   BarChart, Bar, PieChart, Pie, Cell, Legend 
@@ -14,9 +14,6 @@ function AnalyticsCard({ analytics }) {
   const [error, setError] = useState(null);
 
   const COLORS = ['#d946ef', '#ec4899', '#f43f5e', '#fb7185', '#c084fc'];
-
-  // DYNAMIC BACKEND URL: Uses Vercel's env variable, falls back to localhost for local testing
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
   const transformData = (obj) => {
     if (!obj) return [];
@@ -39,23 +36,12 @@ function AnalyticsCard({ analytics }) {
     setActiveUrlId(urlId);
     setLoading(true);
     setError(null);
-    
-    try {
-      const token = localStorage.getItem('token'); 
-      if (!token) {
-        throw new Error("No authentication token found. Please log in again.");
-      }
 
-      // Updated to use the dynamic deployment path
-      const response = await axios.get(
-        `${API_BASE_URL}/api/urls/${urlId}/analytics`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      setDetailedData(response.data);
+    try {
+      const { data } = await urlAPI.getClickAnalytics(urlId);
+      setDetailedData(data);
     } catch (err) {
-      console.error("Error fetching detailed link metrics:", err);
-      setError(err.response?.data?.message || err.message || "Failed to load charts.");
+      setError(err.response?.data?.message || err.message || 'Failed to load charts.');
     } finally {
       setLoading(false);
     }
@@ -160,6 +146,43 @@ function AnalyticsCard({ analytics }) {
                   </div>
                 </div>
               </div>
+
+              <div className="charts-split-row">
+                <div className="chart-wrapper half-width">
+                  <h5>Top Countries</h5>
+                  <div style={{ width: '100%', height: 150 }}>
+                    <ResponsiveContainer>
+                      <BarChart data={transformData(detailedData.countries)} layout="vertical">
+                        <XAxis type="number" hide />
+                        <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={11} width={80} axisLine={false} tickLine={false} />
+                        <Tooltip />
+                        <Bar dataKey="value" fill="#ec4899" radius={[0, 4, 4, 0]} barSize={12} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="chart-wrapper half-width">
+                  <h5>Referrer Sources</h5>
+                  <div style={{ width: '100%', height: 150 }}>
+                    <ResponsiveContainer>
+                      <PieChart>
+                        <Pie
+                          data={transformData(detailedData.referrers)}
+                          cx="50%" cy="50%" innerRadius={35} outerRadius={50} paddingAngle={3} dataKey="value"
+                        >
+                          {transformData(detailedData.referrers).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend iconSize={6} wrapperStyle={{ fontSize: '11px' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
         </div>

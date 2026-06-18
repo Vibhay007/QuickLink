@@ -32,6 +32,7 @@ export const urlAPI = {
   delete: (id) => api.delete(`/urls/${id}`),
   getAnalytics: () => api.get('/urls/analytics'),
   checkAlias: (code) => api.get(`/urls/check-alias/${code}`),
+  getClickAnalytics: (id) => api.get(`/urls/${id}/analytics`),  // ← add this
 };
 
 export default api;
