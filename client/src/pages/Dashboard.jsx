@@ -163,7 +163,7 @@ function Dashboard() {
               </div>
               {customAlias && (
                 <small className="alias-preview">
-                  Your link: <strong>localhost:5001/{customAlias}</strong>
+                  Your link: <strong>https://quicklink-l7pm.onrender.com/{customAlias}</strong>
                 </small>
               )}
             </div>
