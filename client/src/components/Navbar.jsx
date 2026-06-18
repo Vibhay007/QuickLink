@@ -12,8 +12,15 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-brand">
-        QuickLink
+      <Link to="/" className="navbar-brand-wrapper">
+        <div className="cool-logo-icon">
+          <div className="logo-ring ring-outer"></div>
+          <div className="logo-ring ring-inner"></div>
+          <div className="logo-bolt"></div>
+        </div>
+        <span className="logo-text">
+          quick<span className="highlight">LINK</span>
+        </span>
       </Link>
 
       <div className="navbar-links">
@@ -28,11 +35,11 @@ function Navbar() {
               Dashboard
             </NavLink>
 
-            <span className="navbar-user">Hi, {user.name}</span>
+            <span className="navbar-user">Hi, <span className="user-highlight">{user.name}</span></span>
 
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary nav-logout-btn"
               onClick={handleLogout}
             >
               Logout
@@ -49,153 +56,204 @@ function Navbar() {
               Log in
             </NavLink>
 
-           <Link to="/register" className="btn btn-primary signup-btn">
-  Sign up
-</Link>
+            <Link to="/register" className="btn btn-primary signup-btn">
+              Sign up
+            </Link>
           </>
         )}
       </div>
 
       <style>{`
-   .signup-btn {
-  background: linear-gradient(
-    135deg,
-    #ec4899 0%,
-    #d946ef 50%,
-    #8b5cf6 100%
-  );
+        .navbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.85rem 2.5rem;
+          background: linear-gradient(180deg, rgba(15, 21, 36, 0.85) 0%, rgba(11, 15, 25, 0.75) 100%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
 
-  color: white;
-  font-weight: 600;
-  border: none;
+        /* Modern Aesthetic Logo Engine */
+        .navbar-brand-wrapper {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.75rem;
+          text-decoration: none !important;
+          user-select: none;
+        }
 
-  box-shadow:
-    0 4px 12px rgba(236, 72, 153, 0.25),
-    0 8px 24px rgba(139, 92, 246, 0.15);
+        .cool-logo-icon {
+          position: relative;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
 
-  transition: all 0.3s ease;
-}
+        .logo-ring {
+          position: absolute;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-.signup-btn:hover {
-  background: linear-gradient(
-    135deg,
-    #f472b6 0%,
-    #e879f9 50%,
-    #a78bfa 100%
-  );
+        .ring-outer {
+          width: 24px;
+          height: 24px;
+          border-color: rgba(255, 255, 255, 0.2);
+          border-top-color: #22c55e;
+          border-bottom-color: #22c55e;
+          transform: rotate(-45deg);
+        }
 
-  color: white;
-  transform: translateY(-2px);
+        .ring-inner {
+          width: 14px;
+          height: 14px;
+          border-color: rgba(255, 255, 255, 0.1);
+          border-left-color: #ffffff;
+          border-right-color: #ffffff;
+          transform: rotate(45deg);
+        }
 
-  box-shadow:
-    0 8px 20px rgba(236, 72, 153, 0.35),
-    0 12px 30px rgba(139, 92, 246, 0.25);
-}
+        .logo-bolt {
+          position: absolute;
+          width: 2px;
+          height: 8px;
+          background: #22c55e;
+          transform: rotate(45deg);
+          box-shadow: 0 0 8px #22c55e;
+          transition: all 0.3s ease;
+        }
 
-.signup-btn:active {
-  transform: translateY(0);
-}
-     .navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
+        .logo-text {
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+          font-size: 1.35rem;
+          font-weight: 600;
+          color: #ffffff;
+          letter-spacing: -0.8px;
+          text-decoration: none !important;
+        }
 
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(253, 242, 248, 0.95),
-    rgba(250, 232, 255, 0.95)
-  );
+        .logo-text .highlight {
+          font-weight: 800;
+          color: #22c55e;
+          letter-spacing: -0.3px;
+          margin-left: 1px;
+        }
 
-  border-bottom: 1px solid rgba(236, 72, 153, 0.15);
-  backdrop-filter: blur(16px);
+        /* Animated Logo Hover Interactions */
+        .navbar-brand-wrapper:hover .ring-outer {
+          transform: rotate(135deg);
+          border-top-color: #4ade80;
+          border-bottom-color: #4ade80;
+        }
 
-  box-shadow: 0 4px 20px rgba(236, 72, 153, 0.08);
-}
+        .navbar-brand-wrapper:hover .ring-inner {
+          transform: rotate(-135deg);
+        }
 
-.navbar-brand {
-  font-size: 1.5rem;
-  font-weight: 800;
-  text-decoration: none;
+        .navbar-brand-wrapper:hover .logo-bolt {
+          background: #ffffff;
+          box-shadow: 0 0 12px #ffffff;
+        }
 
-  background: linear-gradient(
-    135deg,
-    #ec4899,
-    #c026d3,
-    #8b5cf6
-  );
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-
-  transition: transform 0.25s ease;
-}
-
-.navbar-brand:hover {
-  transform: scale(1.03);
-}
-
+        /* Nav Links Navigation Frame */
         .navbar-links {
           display: flex;
           align-items: center;
-          gap: 1rem;
-        }
-
-        .navbar-links a {
-          text-decoration: none;
+          gap: 1.5rem;
         }
 
         .nav-link {
-          position: relative;
-          color: var(--text-muted);
+          color: #9ca3af;
           font-weight: 500;
+          font-size: 0.9rem;
           padding: 0.5rem 0.85rem;
-          border-radius: 10px;
-          transition: all 0.25s ease;
+          border-radius: 8px;
+          text-decoration: none !important;
+          transition: all 0.2s ease;
         }
 
         .nav-link:hover {
-          color: var(--primary);
-          background: rgba(236, 72, 153, 0.08);
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.04);
+          text-decoration: none !important;
         }
 
         .nav-link.active {
-          color: var(--primary);
-          background: rgba(236, 72, 153, 0.12);
+          color: #22c55e;
+          background: rgba(34, 197, 94, 0.08);
+          border: 1px solid rgba(34, 197, 94, 0.15);
+          font-weight: 600;
+          text-decoration: none !important;
+        }
+
+        /* Highlighted User Area */
+        .navbar-user {
+          color: #6b7280;
+          font-size: 0.85rem;
+          font-weight: 500;
+          border-left: 1px solid rgba(255, 255, 255, 0.08);
+          padding-left: 1.5rem;
+        }
+
+        .user-highlight {
+          color: #ffffff;
           font-weight: 600;
         }
 
-        .nav-link.active::after {
-          content: "";
-          position: absolute;
-          left: 15%;
-          bottom: -4px;
-          width: 70%;
-          height: 3px;
-          border-radius: 999px;
-          background: linear-gradient(
-            90deg,
-            #ec4899,
-            #c026d3
-          );
+        /* CTA Aesthetic Button Layouts */
+        .signup-btn {
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+          color: #000000 !important;
+          font-weight: 600;
+          border: none;
+          font-size: 0.9rem;
+          padding: 0.55rem 1.25rem;
+          border-radius: 8px;
+          box-shadow: 0 4px 14px rgba(34, 197, 94, 0.2);
+          transition: all 0.2s ease;
+          text-decoration: none !important;
         }
 
-        .navbar-user {
-          color: var(--text-muted);
-          font-size: 0.9rem;
+        .signup-btn:hover {
+          filter: brightness(1.1);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+        }
+
+        .nav-logout-btn {
+          background: #1f2937 !important;
+          border: 1px solid rgba(255, 255, 255, 0.05) !important;
+          color: #d1d5db !important;
+          font-size: 0.85rem;
+          padding: 0.5rem 1.1rem;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .nav-logout-btn:hover {
+          background: #2d3748 !important;
+          border-color: rgba(255, 255, 255, 0.15);
+          color: #ffffff !important;
         }
 
         @media (max-width: 640px) {
           .navbar {
-            padding: 1rem;
+            padding: 1rem 1.5rem;
           }
-
           .navbar-links {
-            gap: 0.5rem;
+            gap: 0.75rem;
           }
-
           .navbar-user {
             display: none;
           }

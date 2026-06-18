@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
         .then((res) => setUser(res.data))
         .catch(() => {
           localStorage.removeItem('token');
+          setUser(null);
         })
         .finally(() => setLoading(false));
     } else {
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-  <AuthContext.Provider value={{ user, setUser, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, setUser, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

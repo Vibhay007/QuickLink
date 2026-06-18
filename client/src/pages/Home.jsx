@@ -6,193 +6,243 @@ function Home() {
 
   return (
     <section className="home">
-      <h1 className="page-title">Shorten your links in seconds</h1>
-      <p className="page-subtitle">
-        QuickLink helps you create short URLs, track clicks, and share QR codes — all in one place.
-      </p>
-      <div className="home-cta">
-        {user ? (
-          <Link to="/dashboard" className="btn btn-primary">
-            Go to Dashboard
-          </Link>
-        ) : (
-          <>
-            <Link to="/register" className="btn btn-primary register">
-              Get started free
+      {/* Background Accent Glows */}
+      <div className="glow-orb glow-left"></div>
+      <div className="glow-orb glow-right"></div>
+
+      <div className="home-content">
+        <span className="saas-badge">// Simple Link Shortener</span>
+        <h1 className="page-title saas-hero-title">
+          Shorten your links <br className="desktop-only" />
+          and track your success
+        </h1>
+        <p className="page-subtitle saas-hero-subtitle">
+          QuickLink helps you create short URLs, see real-time click stats, and download QR codes. Share your clean links anywhere instantly.
+        </p>
+        
+        <div className="home-cta">
+          {user ? (
+            <Link to="/dashboard" className="btn btn-primary saas-hero-primary">
+              Go to Dashboard
             </Link>
-            <Link to="/login" className="btn btn-secondary">
-              Log in
-            </Link>
-          </>
-        )}
+          ) : (
+            <>
+              <Link to="/register" className="btn btn-primary register saas-hero-primary">
+                Get started free
+              </Link>
+              <Link to="/login" className="btn btn-secondary saas-hero-secondary">
+                Log in
+              </Link>
+            </>
+          )}
+        </div>
       </div>
+
       <div className="home-features">
-        <div className="feature card">
+        <div className="feature card saas-feature-card">
+          <div className="feature-indicator">01 // LINKS</div>
           <h3>Short URLs</h3>
-          <p>Turn long links into memorable short codes.</p>
+          <p>Turn long, messy website links into clean, short codes that are easy to share and look professional.</p>
         </div>
-        <div className="feature card">
-          <h3>Analytics</h3>
-          <p>Track clicks and see your top-performing links.</p>
+        <div className="feature card saas-feature-card">
+          <div className="feature-indicator">02 // STATS</div>
+          <h3>Easy Analytics</h3>
+          <p>See how many clicks your links get in real-time. Track what devices and countries your visitors come from.</p>
         </div>
-        <div className="feature card">
+        <div className="feature card saas-feature-card">
+          <div className="feature-indicator">03 // SHARING</div>
           <h3>QR Codes</h3>
-          <p>Generate QR codes for easy offline sharing.</p>
+          <p>Instantly generate matching QR codes for your short links. Perfect for scanning on flyers, business cards, or screens.</p>
         </div>
       </div>
-     <style>{`
-       .register {
-  background: linear-gradient(
-    135deg,
-    #ec4899 0%,
-    #d946ef 50%,
-    #8b5cf6 100%
-  );
 
-  color: white;
-  font-weight: 600;
-  border: none;
+      <style>{`
+        .home {
+          position: relative;
+          text-align: center;
+          padding: 6rem 0 8rem 0;
+          background: transparent;
+          width: 100%;
+          overflow: hidden;
+        }
 
-  box-shadow:
-    0 4px 12px rgba(236, 72, 153, 0.25),
-    0 8px 24px rgba(139, 92, 246, 0.15);
+        /* Glow System */
+        .glow-orb {
+          position: absolute;
+          width: 400px;
+          height: 400px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(34, 197, 94, 0.06) 0%, rgba(0, 0, 0, 0) 70%);
+          pointer-events: none;
+          z-index: 0;
+        }
+        .glow-left { top: -10%; left: -10%; }
+        .glow-right { bottom: 10%; right: -10%; }
 
-  transition: all 0.3s ease;
-}
+        .home-content {
+          position: relative;
+          z-index: 1;
+        }
 
-.register:hover {
-  background: linear-gradient(
-    135deg,
-    #f472b6 0%,
-    #e879f9 50%,
-    #a78bfa 100%
-  );
+        .saas-badge {
+          display: inline-block;
+          font-family: monospace;
+          color: #22c55e;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          margin-bottom: 1.5rem;
+          background: rgba(34, 197, 94, 0.08);
+          padding: 0.35rem 0.75rem;
+          border-radius: 99px;
+          border: 1px solid rgba(34, 197, 94, 0.15);
+        }
 
-  color: white;
-  transform: translateY(-2px);
+        .saas-hero-title {
+          font-size: 4rem;
+          font-weight: 800;
+          line-height: 1.1;
+          margin-bottom: 1.5rem;
+          color: #ffffff;
+          letter-spacing: -2px;
+        }
 
-  box-shadow:
-    0 8px 20px rgba(236, 72, 153, 0.35),
-    0 12px 30px rgba(139, 92, 246, 0.25);
-}
+        .saas-hero-subtitle {
+          max-width: 680px;
+          margin: 0 auto 3.5rem;
+          font-size: 1.15rem;
+          color: #9ca3af;
+          line-height: 1.75;
+        }
 
-.register:active {
-  transform: translateY(0);
-}
-  .home {
-    text-align: center;
-    padding: 2rem 0;
-  }
+        .home-cta {
+          display: flex;
+          justify-content: center;
+          gap: 1.25rem;
+          margin-bottom: 7rem;
+          flex-wrap: wrap;
+          position: relative;
+          z-index: 1;
+        }
 
-  .page-title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 1rem;
+        .home-cta .btn {
+          min-width: 190px;
+          padding: 0.9rem 2rem;
+          font-size: 0.95rem;
+          border-radius: 10px;
+        }
 
-    background: linear-gradient(
-      135deg,
-      #ec4899,
-      #c026d3,
-      #8b5cf6
-    );
+        .saas-hero-primary {
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+          color: #000000 !important;
+          font-weight: 600;
+          border: none;
+          box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
+        .saas-hero-primary:hover {
+          filter: brightness(1.15);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(34, 197, 94, 0.45);
+        }
 
-  .page-subtitle {
-    max-width: 700px;
-    margin: 0 auto 2.5rem;
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    line-height: 1.8;
-  }
+        .saas-hero-secondary {
+          background: #111726 !important;
+          border: 1px solid rgba(255, 255, 255, 0.08) !important;
+          color: #ffffff !important;
+          font-weight: 600;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-  .home-cta {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 4rem;
-    flex-wrap: wrap;
-  }
+        .saas-hero-secondary:hover {
+          background: #1f2937 !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+          transform: translateY(-2px);
+        }
 
-  .home-cta .btn {
-    min-width: 170px;
-    padding: 0.9rem 1.6rem;
-  }
+        /* Feature Card Grid */
+        .home-features {
+          position: relative;
+          z-index: 1;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 1.75rem;
+          max-width: 1000px;
+          margin: 0 auto;
+          padding: 0 1.5rem;
+        }
 
-  .home-features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
-  }
+        .saas-feature-card {
+          background: #111726; 
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 20px;
+          padding: 2.5rem 2rem;
+          text-align: left;
+          box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+        }
 
-  .feature {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    text-align: left;
-  }
+        .saas-feature-card:hover {
+          transform: translateY(-5px);
+          border-color: rgba(34, 197, 94, 0.3);
+        }
 
-  .feature::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(236, 72, 153, 0.08),
-      rgba(168, 85, 247, 0.08)
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
+        .feature-indicator {
+          font-family: monospace;
+          color: #4b5563;
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 1px;
+          margin-bottom: 1.25rem;
+        }
 
-  .feature:hover {
-    transform: translateY(-6px);
-    box-shadow:
-      0 15px 35px rgba(236, 72, 153, 0.12),
-      0 5px 15px rgba(0, 0, 0, 0.05);
-  }
+        .saas-feature-card h3 {
+          margin-bottom: 0.85rem;
+          font-size: 1.3rem;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: -0.4px;
+        }
 
-  .feature:hover::before {
-    opacity: 1;
-  }
+        .saas-feature-card p {
+          color: #9ca3af;
+          font-size: 0.9rem;
+          line-height: 1.65;
+        }
 
-  .feature h3 {
-    position: relative;
-    margin-bottom: 0.75rem;
-    font-size: 1.25rem;
-    color: var(--primary);
-  }
+        .desktop-only {
+          display: block;
+        }
 
-  .feature p {
-    position: relative;
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    line-height: 1.7;
-  }
+        @media (max-width: 768px) {
+          .saas-hero-title {
+            font-size: 2.75rem;
+            letter-spacing: -1px;
+          }
 
-  @media (max-width: 768px) {
-    .page-title {
-      font-size: 2.5rem;
-    }
+          .saas-hero-subtitle {
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+          }
 
-    .page-subtitle {
-      font-size: 1rem;
-    }
+          .home-cta {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 4.5rem;
+          }
 
-    .home-cta {
-      flex-direction: column;
-      align-items: center;
-    }
+          .home-cta .btn {
+            width: 100%;
+            max-width: 340px;
+          }
 
-    .home-cta .btn {
-      width: 100%;
-      max-width: 320px;
-    }
-  }
-`}</style>
+          .desktop-only {
+            display: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }
