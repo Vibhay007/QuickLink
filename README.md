@@ -1,6 +1,6 @@
 # 🚀 QuickLink
 
-QuickLink is a full-stack URL shortener that allows users to create, manage, and track shortened links with ease. It includes secure authentication, detailed analytics, QR code generation, and a modern user-friendly interface.
+QuickLink is a full-stack URL shortener that allows users to create, manage, and track shortened links with real-time analytics. Built with the MERN stack, it features a complete click analytics pipeline tracking device, browser, country, and referrer data per click event.
 
 ---
 
@@ -9,8 +9,11 @@ QuickLink is a full-stack URL shortener that allows users to create, manage, and
 * Full-stack MERN application
 * Firebase Google Authentication
 * JWT-based Authorization
-* URL Analytics Dashboard
+* Real-time Click Analytics Pipeline (5 dimensions per event)
+* Interactive Charts Dashboard (Recharts)
 * QR Code Generation
+* Custom Alias Support
+* Non-blocking Redirect Architecture (< 150ms response time)
 * Responsive UI
 * RESTful API Architecture
 * MongoDB Atlas Integration
@@ -20,7 +23,6 @@ QuickLink is a full-stack URL shortener that allows users to create, manage, and
 ## 🌟 Features
 
 ### 🔐 Authentication & Security
-
 * User Registration & Login
 * Google Sign-In with Firebase
 * JWT-based Authentication
@@ -28,26 +30,39 @@ QuickLink is a full-stack URL shortener that allows users to create, manage, and
 * Secure Password Handling
 
 ### 🔗 URL Shortening
-
 * Generate short URLs instantly
-* Custom short links support
-* Redirect users to original URLs
+* Custom alias support with real-time availability check
+* Fast redirect pipeline with < 150ms response time
+* Indexed MongoDB lookups for optimal performance
 
-### 📊 Analytics Dashboard
+### 📊 Click Analytics Pipeline
+* Real-time click event tracking per URL
+* **5 dimensions tracked per click:**
+  * Device type (mobile, desktop, tablet)
+  * Browser (Chrome, Safari, Brave, Firefox, Edge, and 10+ more)
+  * Country (via IP geolocation)
+  * Referrer source (Google, Twitter, LinkedIn, direct)
+  * Timestamp (for time-series charts)
+* Non-blocking background processing — redirect speed unaffected
+* Accurate browser detection via `sec-ch-ua` header + UA string parsing
+* Real user IP detection via `x-forwarded-for` header
 
-* Track total clicks
-* Monitor link performance
-* View user-specific URLs
-* Analyze link engagement
+### 📈 Analytics Dashboard
+* Total clicks and total URLs overview
+* Top performing links
+* Per-URL granular insights:
+  * Clicks distribution timeline (Area chart)
+  * Device breakdown (Pie chart)
+  * Top browsers (Bar chart)
+  * Top countries (Bar chart)
+  * Referrer sources (Pie chart)
 
 ### 📱 QR Code Generation
-
-* Generate QR codes for shortened URLs
+* Generate QR codes for every shortened URL
 * Easy sharing across devices
 * Download and use QR codes anywhere
 
 ### 👤 User Dashboard
-
 * Manage all created links
 * Delete links
 * View analytics for each URL
@@ -58,33 +73,41 @@ QuickLink is a full-stack URL shortener that allows users to create, manage, and
 ## 🛠️ Tech Stack
 
 ### Frontend
-
 * React
 * Vite
 * React Router
+* Recharts (analytics visualization)
 
 ### Backend
-
 * Node.js
 * Express.js
+* ua-parser-js (browser/device detection)
 
 ### Database
-
-* MongoDB
+* MongoDB Atlas
+* Mongoose (indexed shortCode for fast lookups)
 
 ### Authentication
-
 * Firebase Authentication
 * JWT (JSON Web Tokens)
 
 ### Additional Libraries
-
 * Axios
-* Mongoose
 * bcryptjs
 * dotenv
 * Firebase
 * QR Code Generator
+
+---
+
+## ⚡ Performance
+
+| Metric | Value |
+|--------|-------|
+| Redirect response time | < 150ms |
+| Click tracking | Non-blocking (background) |
+| DB lookup | Indexed shortCode |
+| Hosting | Vercel (frontend) + Render (backend) |
 
 ---
 
@@ -93,13 +116,30 @@ QuickLink is a full-stack URL shortener that allows users to create, manage, and
 ```bash
 QuickLink/
 │
-├── client/          # React Frontend
+├── client/                  # React Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AnalyticsCard.jsx   # Charts dashboard
+│   │   │   ├── UrlCard.jsx         # URL management card
+│   │   │   └── QRCode.jsx
+│   │   ├── pages/
+│   │   │   └── Dashboard.jsx
+│   │   └── services/
+│   │       └── api.js
 │
-├── server/          # Node.js Backend
+├── server/                  # Node.js Backend
+│   ├── models/
+│   │   ├── Url.js           # URL schema (indexed shortCode)
+│   │   ├── Click.js         # Click event schema (5 dimensions)
+│   │   └── User.js
+│   ├── routes/
+│   │   ├── urlRoutes.js
+│   │   └── authRoutes.js
+│   ├── controllers/
+│   │   └── urlController.js
+│   └── server.js            # Main server + redirect handler
 │
-├── README.md
-│
-└── package.json
+└── README.md
 ```
 
 ---
@@ -110,19 +150,16 @@ QuickLink/
 
 ```env
 PORT=5000
-
 MONGO_URI=your_mongodb_connection_string
-
 JWT_SECRET=your_jwt_secret
-
 BASE_URL=http://localhost:5000
+CLIENT_URL=http://localhost:5173
 ```
 
 ### Frontend (.env)
 
 ```env
-VITE_API_URL=http://localhost:5000
-
+VITE_API_URL=http://localhost:5000/api
 VITE_FIREBASE_API_KEY=your_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
 VITE_FIREBASE_PROJECT_ID=your_project_id
@@ -139,7 +176,6 @@ VITE_FIREBASE_APP_ID=your_app_id
 
 ```bash
 git clone https://github.com/Vibhay007/QuickLink.git
-
 cd QuickLink
 ```
 
@@ -147,7 +183,6 @@ cd QuickLink
 
 ```bash
 cd client
-
 npm install
 ```
 
@@ -155,7 +190,6 @@ npm install
 
 ```bash
 cd ../server
-
 npm install
 ```
 
@@ -167,7 +201,6 @@ npm install
 
 ```bash
 cd server
-
 npm run dev
 ```
 
@@ -175,42 +208,31 @@ npm run dev
 
 ```bash
 cd client
-
 npm run dev
 ```
 
-Frontend:
-
-```text
-http://localhost:5173
-```
-
-Backend:
-
-```text
-http://localhost:5000
-```
+Frontend: `http://localhost:5173`  
+Backend: `http://localhost:5001`
 
 ---
 
-## 📈 Analytics
+## 🔬 How the Analytics Pipeline Works
 
-QuickLink provides analytics for each shortened URL including:
-
-* Total Clicks
-* Link Performance Tracking
-* User-Specific URL Statistics
-* Real-Time Usage Monitoring
-
----
-
-## 📱 QR Code Support
-
-Each shortened URL can be converted into a QR code, making it easy to:
-
-* Share links quickly
-* Access URLs from mobile devices
-* Use links in presentations, posters, and documents
+```
+User clicks short link
+        ↓
+Express server finds original URL in MongoDB (indexed lookup)
+        ↓
+Redirect sent immediately to user (< 150ms)
+        ↓
+Background processing begins (non-blocking):
+  ├── Parse device + browser from User-Agent + sec-ch-ua
+  ├── Read referrer from HTTP headers
+  ├── Geolocate country from x-forwarded-for IP
+  └── Save Click document to MongoDB
+        ↓
+Dashboard charts update on next view
+```
 
 ---
 
@@ -227,30 +249,24 @@ Each shortened URL can be converted into a QR code, making it easy to:
 
 ## 🌐 Deployment
 
-### Frontend
-
-* Vercel
-
-### Backend
-
-* Render
-
-### Database
-
-* MongoDB Atlas
+| Service | Platform |
+|---------|----------|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | MongoDB Atlas (Mumbai region) |
 
 ---
 
 ## 🎯 Future Improvements
 
-* Custom Domain Support
-* Advanced Analytics
-* Link Expiration
-* Password-Protected Links
-* Team Collaboration
-* Geo-location Tracking
-* Dark Mode
-* Multi-Provider Authentication (GitHub, LinkedIn)
+* Redis caching layer for < 10ms repeat redirects
+* Rate limiting per IP
+* Link expiration with cron jobs
+* Password-protected links
+* Custom domain support
+* Team collaboration
+* Dark mode
+* Multi-provider authentication (GitHub, LinkedIn)
 
 ---
 
@@ -262,7 +278,10 @@ Each shortened URL can be converted into a QR code, making it easy to:
 
 <img width="1470" height="828" alt="URL Management" src="https://github.com/user-attachments/assets/2d294cff-46a6-4610-8277-05f153216d27" />
 
-<img width="1469" height="828" alt="QR Code" src="https://github.com/user-attachments/assets/ad75985c-4d35-4225-9bc5-c86376f3186f" />
+<img width="1469" height="828" alt="QR Code" src="https://github.com/user-attachments/assets/2d294cff-46a6-4610-8277-05f153216d27" />
+
+<img width="1470" height="828" alt="Screenshot 2026-06-18 at 3 48 06 PM" src="https://github.com/user-attachments/assets/701a0249-ec62-46dc-8ebb-ed9f48d8bffa" />
+
 
 ---
 
@@ -271,25 +290,18 @@ Each shortened URL can be converted into a QR code, making it easy to:
 Contributions are welcome!
 
 1. Fork the repository
-
 2. Create a feature branch
-
 ```bash
 git checkout -b feature/new-feature
 ```
-
 3. Commit your changes
-
 ```bash
-git commit -m "Add new feature"
+git commit -m "feat: add new feature"
 ```
-
 4. Push to GitHub
-
 ```bash
 git push origin feature/new-feature
 ```
-
 5. Open a Pull Request
 
 ---
@@ -300,8 +312,8 @@ This project is licensed under the MIT License.
 
 ---
 
-## 👨‍💻 Author
+## 👩‍💻 Author
 
 **Vibha Yadav**
 
-Built with ❤️ using React, Node.js, Express.js, MongoDB, Firebase Authentication, and JWT.
+Built with ❤️ using React, Node.js, Express.js, MongoDB, Firebase Authentication, JWT, and Recharts.
