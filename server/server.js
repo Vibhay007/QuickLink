@@ -47,19 +47,27 @@ app.get('/:shortCode', async (req, res, next) => {
 
     // ── background processing ──
 
-    // Step A — accurate browser detection
+    // Step A — comprehensive browser detection
     const ua = req.headers['user-agent'] || '';
     const secChUa = req.headers['sec-ch-ua'] || '';
     const parser = new UAParser(ua);
     const device = parser.getDevice().type || 'desktop';
 
     let browser = 'unknown';
-    if (secChUa.includes('Brave') || ua.includes('Brave')) browser = 'Brave';
-    else if (ua.includes('Edg/')) browser = 'Edge';
-    else if (ua.includes('OPR') || ua.includes('Opera')) browser = 'Opera';
-    else if (ua.includes('Firefox')) browser = 'Firefox';
-    else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
-    else if (ua.includes('Chrome')) browser = 'Chrome';
+    if (secChUa.includes('Brave'))                                        browser = 'Brave';
+    else if (secChUa.includes('Microsoft Edge') || ua.includes('Edg/'))  browser = 'Edge';
+    else if (secChUa.includes('Opera') || ua.includes('OPR') || ua.includes('Opera')) browser = 'Opera';
+    else if (secChUa.includes('Vivaldi') || ua.includes('Vivaldi'))       browser = 'Vivaldi';
+    else if (secChUa.includes('YaBrowser') || ua.includes('YaBrowser'))   browser = 'Yandex';
+    else if (secChUa.includes('Samsung') || ua.includes('SamsungBrowser')) browser = 'Samsung Internet';
+    else if (ua.includes('UCBrowser'))                                     browser = 'UC Browser';
+    else if (ua.includes('Firefox'))                                       browser = 'Firefox';
+    else if (ua.includes('FxiOS'))                                         browser = 'Firefox iOS';
+    else if (ua.includes('CriOS'))                                         browser = 'Chrome iOS';
+    else if (ua.includes('EdgA'))                                          browser = 'Edge Android';
+    else if (ua.includes('Safari') && !ua.includes('Chrome'))             browser = 'Safari';
+    else if (ua.includes('Chrome'))                                        browser = 'Chrome';
+    else if (ua.includes('MSIE') || ua.includes('Trident/'))              browser = 'Internet Explorer';
 
     // Step B — referrer
     const referrer = req.headers['referer'] || 'direct';
