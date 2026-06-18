@@ -1,20 +1,18 @@
 import express from 'express';
 import cors from 'cors';
-// import dotenv from 'dotenv';
 import 'dotenv/config'
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import urlRoutes from './routes/urlRoutes.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import Url from './models/Url.js';
-
-// dotenv.config();
+import Click from './models/Click.js';
+import { UAParser } from 'ua-parser-js';
 
 connectDB();
 
 const app = express();
 
-/* Add this */
 app.set('trust proxy', 1);
 
 app.use(
@@ -44,10 +42,47 @@ app.get('/:shortCode', async (req, res, next) => {
       return res.status(404).json({ message: 'Short URL not found' });
     }
 
-    url.clicks += 1;
-    await url.save();
+    // redirect immediately — user doesn't wait for anything below
+    res.redirect(url.originalUrl);
 
-    return res.redirect(url.originalUrl);
+    // ── everything below runs in background ──
+
+    // Step A — parse device and browser from user-agent
+    const parser = new UAParser(req.headers['user-agent']);
+    const device = parser.getDevice().type || 'desktop';
+    const browser = parser.getBrowser().name || 'unknown';
+
+    // Step B — get referrer
+    const referrer = req.headers['referer'] || 'direct';
+
+    // Step C — get country from IP
+    let country = 'unknown';
+    try {
+      const ip = req.ip;
+      const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
+      const geoData = await geoRes.json();
+      if (geoData.status === 'success') {
+        country = geoData.country;
+      }
+    } catch (geoError) {
+      console.error('Geo error:', geoError.message);
+    }
+
+    // Step D — save click event with all 5 metrics
+    await Click.create({
+      urlId: url._id,
+      device,
+      browser,
+      country,
+      referrer,
+    });
+
+    // Step E — increment click counter
+    Url.updateOne(
+      { _id: url._id },
+      { $inc: { clicks: 1 } }
+    ).exec();
+
   } catch (error) {
     next(error);
   }

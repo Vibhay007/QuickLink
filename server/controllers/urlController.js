@@ -1,7 +1,7 @@
 import Url from '../models/Url.js';
 import generateShortCode from '../utils/generateShortCode.js';
 import validateUrl, { normalizeUrl } from '../utils/validateUrl.js';
-
+import Click from '../models/Click.js';
 const getBaseUrl = (req) => `${req.protocol}://${req.get('host')}`;
 
 export const createShortUrl = async (req, res, next) => {
@@ -122,6 +122,74 @@ export const checkAlias = async (req, res, next) => {
 
     const exists = await Url.findOne({ shortCode: code });
     res.json({ available: !exists });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+export const getClickAnalytics = async (req, res, next) => {
+  try {
+    // verify URL belongs to this user
+    const url = await Url.findById(req.params.id);
+
+    if (!url) {
+      return res.status(404).json({ message: 'URL not found' });
+    }
+
+    if (url.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    // fetch all clicks for this URL
+    const clicks = await Click.find({ urlId: req.params.id });
+
+    // total clicks
+    const total = clicks.length;
+
+    // group by device
+    const devices = clicks.reduce((acc, click) => {
+      acc[click.device] = (acc[click.device] || 0) + 1;
+      return acc;
+    }, {});
+
+    // group by browser
+    const browsers = clicks.reduce((acc, click) => {
+      acc[click.browser] = (acc[click.browser] || 0) + 1;
+      return acc;
+    }, {});
+
+    // group by country
+    const countries = clicks.reduce((acc, click) => {
+      acc[click.country] = (acc[click.country] || 0) + 1;
+      return acc;
+    }, {});
+
+    // group by referrer
+    const referrers = clicks.reduce((acc, click) => {
+      acc[click.referrer] = (acc[click.referrer] || 0) + 1;
+      return acc;
+    }, {});
+
+    // clicks per day
+    const clicksByDay = clicks.reduce((acc, click) => {
+      const day = new Date(click.timestamp)
+        .toISOString()
+        .split('T')[0]; // "2026-06-18"
+      acc[day] = (acc[day] || 0) + 1;
+      return acc;
+    }, {});
+
+    res.json({
+      total,
+      devices,
+      browsers,
+      countries,
+      referrers,
+      clicksByDay,
+    });
+
   } catch (error) {
     next(error);
   }
