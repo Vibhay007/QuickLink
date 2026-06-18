@@ -27,7 +27,6 @@ app.use(
 
 app.use(express.json());
 
-// 1. ALL API ROUTERS MUST GO FIRST
 app.use('/api/auth', authRoutes);
 app.use('/api/urls', urlRoutes);
 
@@ -35,7 +34,6 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-// 2. MOVE THE WILDCARD TO THE BOTTOM (Right before error handlers)
 app.get('/:shortCode', async (req, res, next) => {
   try {
     const url = await Url.findOne({ shortCode: req.params.shortCode });
@@ -44,16 +42,33 @@ app.get('/:shortCode', async (req, res, next) => {
       return res.status(404).json({ message: 'Short URL not found' });
     }
 
+    // redirect immediately
     res.redirect(url.originalUrl);
 
-    const parser = new UAParser(req.headers['user-agent']);
+    // ── background processing ──
+
+    // Step A — accurate browser detection
+    const ua = req.headers['user-agent'] || '';
+    const parser = new UAParser(ua);
     const device = parser.getDevice().type || 'desktop';
-    const browser = parser.getBrowser().name || 'unknown';
+
+    let browser = 'unknown';
+    if (ua.includes('Brave')) browser = 'Brave';
+    else if (ua.includes('Edg/')) browser = 'Edge';
+    else if (ua.includes('OPR') || ua.includes('Opera')) browser = 'Opera';
+    else if (ua.includes('Firefox')) browser = 'Firefox';
+    else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+    else if (ua.includes('Chrome')) browser = 'Chrome';
+
+    // Step B — referrer
     const referrer = req.headers['referer'] || 'direct';
+
+    // Step C — real user IP via x-forwarded-for
+    const rawIp = req.headers['x-forwarded-for'] || req.ip;
+    const ip = rawIp.split(',')[0].trim();
 
     let country = 'unknown';
     try {
-      const ip = req.ip;
       const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
       const geoData = await geoRes.json();
       if (geoData.status === 'success') {
@@ -63,6 +78,7 @@ app.get('/:shortCode', async (req, res, next) => {
       console.error('Geo error:', geoError.message);
     }
 
+    // Step D — save click event
     await Click.create({
       urlId: url._id,
       device,
@@ -71,6 +87,7 @@ app.get('/:shortCode', async (req, res, next) => {
       referrer,
     });
 
+    // Step E — increment click counter
     Url.updateOne(
       { _id: url._id },
       { $inc: { clicks: 1 } }
@@ -81,7 +98,6 @@ app.get('/:shortCode', async (req, res, next) => {
   }
 });
 
-// 3. ERROR HANDLERS GO LAST
 app.use(notFound);
 app.use(errorHandler);
 
