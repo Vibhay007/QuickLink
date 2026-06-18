@@ -27,6 +27,7 @@ app.use(
 
 app.use(express.json());
 
+// 1. ALL API ROUTERS MUST GO FIRST
 app.use('/api/auth', authRoutes);
 app.use('/api/urls', urlRoutes);
 
@@ -34,6 +35,7 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
+// 2. MOVE THE WILDCARD TO THE BOTTOM (Right before error handlers)
 app.get('/:shortCode', async (req, res, next) => {
   try {
     const url = await Url.findOne({ shortCode: req.params.shortCode });
@@ -42,20 +44,13 @@ app.get('/:shortCode', async (req, res, next) => {
       return res.status(404).json({ message: 'Short URL not found' });
     }
 
-    // redirect immediately — user doesn't wait for anything below
     res.redirect(url.originalUrl);
 
-    // ── everything below runs in background ──
-
-    // Step A — parse device and browser from user-agent
     const parser = new UAParser(req.headers['user-agent']);
     const device = parser.getDevice().type || 'desktop';
     const browser = parser.getBrowser().name || 'unknown';
-
-    // Step B — get referrer
     const referrer = req.headers['referer'] || 'direct';
 
-    // Step C — get country from IP
     let country = 'unknown';
     try {
       const ip = req.ip;
@@ -68,7 +63,6 @@ app.get('/:shortCode', async (req, res, next) => {
       console.error('Geo error:', geoError.message);
     }
 
-    // Step D — save click event with all 5 metrics
     await Click.create({
       urlId: url._id,
       device,
@@ -77,7 +71,6 @@ app.get('/:shortCode', async (req, res, next) => {
       referrer,
     });
 
-    // Step E — increment click counter
     Url.updateOne(
       { _id: url._id },
       { $inc: { clicks: 1 } }
@@ -88,11 +81,9 @@ app.get('/:shortCode', async (req, res, next) => {
   }
 });
 
+// 3. ERROR HANDLERS GO LAST
 app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () =>
-  console.log(`Server running on port ${PORT}`)
-);
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
