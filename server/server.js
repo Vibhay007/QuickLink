@@ -49,11 +49,12 @@ app.get('/:shortCode', async (req, res, next) => {
 
     // Step A — accurate browser detection
     const ua = req.headers['user-agent'] || '';
+    const secChUa = req.headers['sec-ch-ua'] || '';
     const parser = new UAParser(ua);
     const device = parser.getDevice().type || 'desktop';
 
     let browser = 'unknown';
-    if (ua.includes('Brave')) browser = 'Brave';
+    if (secChUa.includes('Brave') || ua.includes('Brave')) browser = 'Brave';
     else if (ua.includes('Edg/')) browser = 'Edge';
     else if (ua.includes('OPR') || ua.includes('Opera')) browser = 'Opera';
     else if (ua.includes('Firefox')) browser = 'Firefox';
